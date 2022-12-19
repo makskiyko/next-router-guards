@@ -1,6 +1,6 @@
 import type {NextRequest} from 'next/server';
 
-import {Guard} from '/src';
+import {Guard} from '../guard.class';
 
 type CanActivate = (request: NextRequest) => CanAccessUrlResponse;
 
