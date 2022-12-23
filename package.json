@@ -1,6 +1,6 @@
 {
   "name": "next-router-guards",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "next-router-guards",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

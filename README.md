@@ -20,7 +20,7 @@ npm i next-router-guards
 Here is a very basic example of how to use Next Router Guards.
 
 ### Use exists guards.
-You can see examples of guards in [/examples](https://github.com/makskiyko/next-router-guards/exmaples).
+You can see examples of guards in [/examples](https://github.com/makskiyko/next-router-guards/tree/master/exmaples).
 
 ```ts
 // /core/config/routes.config.ts
