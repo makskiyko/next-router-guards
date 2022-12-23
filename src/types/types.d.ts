@@ -4,7 +4,7 @@ declare type CanAccessUrlResponse = string | null | Promise<string | null>;
 
 declare type GuardRoute<TGuardRoute extends {[key: string]: any} | void> = {
   route: RouteUrl;
-} & TGuardRoute;
+} & (TGuardRoute extends void ? {} : TGuardRoute);
 
 declare type CanAccessRouteParams<
   TConfigProps extends {[key: string]: any} | void,
@@ -25,4 +25,4 @@ declare type GuardsConfig<
   TGuardRoute extends {[key: string]: any} | void,
 > = {
   routes: {[key: string]: GuardRoute<TGuardRoute>};
-} & TConfigProps;
+} & (TConfigProps extends void ? {} : TConfigProps);
