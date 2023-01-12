@@ -41,6 +41,6 @@ export class RolesGuard<TRoles extends string> extends Guard<RoleGuardConfigProp
   }
 
   private _getUserRole(request: NextRequest): TRoles | undefined {
-    return request.cookies.get(this.config.roleStorageKey) as TRoles | undefined;
+    return request.cookies.get(this.config.roleStorageKey)?.value as TRoles | undefined;
   }
 }

@@ -18,7 +18,8 @@ class RolesGuard extends guard_class_1.Guard {
         return isRoleIncludes ? null : params.config.defaultPages[role];
     }
     _getUserRole(request) {
-        return request.cookies.get(this.config.roleStorageKey);
+        var _a;
+        return (_a = request.cookies.get(this.config.roleStorageKey)) === null || _a === void 0 ? void 0 : _a.value;
     }
 }
 exports.RolesGuard = RolesGuard;
