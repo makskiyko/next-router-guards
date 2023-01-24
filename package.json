@@ -5,13 +5,21 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
+  "bin": {
+    "next-router-guards": "scripts/index.js"
+  },
   "scripts": {
-    "build": "rm -rf dist/ && prettier --write src/ && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc",
-    "build:cjs": "tsc --module CommonJS --outDir dist/cjs",
-    "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx,json,css,scss}\""
+    "build": "npm run build:lib && npm run build:scripts",
+    "build:lib": "rm -rf dist/ && npm run prettier:fix && npm run build:lib-esm && npm run build:lib-cjs",
+    "build:lib-esm": "tsc src/lib/*",
+    "build:lib-cjs": "tsc src/lib/* --module CommonJS --outDir dist/cjs",
+    "build:scripts": "rm -rf scripts/ && npm run prettier:fix && npm run build:scripts-esm && npm run build:scripts-cjs",
+    "build:scripts-esm": "tsc src/scripts/*",
+    "build:scripts-cjs": "tsc src/scripts/* --module CommonJS --outDir scripts",
+    "prettier:fix": "prettier --write src/"
   },
   "repository": {
     "type": "git",
@@ -32,8 +40,10 @@
     "@types/node": "^18.11.17",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
-    "typescript": "4.7.4",
-    "prettier": "^2.7.1"
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "prettier": "^2.7.1",
+    "typescript": "4.7.4"
   },
   "dependencies": {
     "next": "^13.0.7",
