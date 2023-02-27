@@ -1,7 +1,14 @@
+declare type GuardVariant = 'active' | 'authorized' | 'can_activate' | 'roles';
+
 declare type ConfigParams = {
-  ts: boolean;
-  writeMiddleware: boolean;
+  useTs: boolean;
   routesPath: string;
+  useSrc?: boolean;
+  useApp?: boolean;
+  initializeMiddleware?: boolean;
+  initializeRoutesConfig?: boolean;
+  routesConfigPath?: string;
+  guard?: GuardVariant;
 };
 
 declare type CosmiconfigResult = {

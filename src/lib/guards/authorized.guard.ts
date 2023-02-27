@@ -1,4 +1,5 @@
 import {Guard} from '../guard.class';
+import {CanAccessRouteParams, RoutesParams, RouteUrl} from '../types';
 import type {NextRequest} from 'next/server';
 
 type AuthorizedGuardRoute = {
@@ -12,13 +13,13 @@ type AuthorizedGuardConfigProps = {
   isAuthorizedUserCanOpenPublicPage?: boolean; // default: true
 };
 
-export class AuthorizedGuard<TRoutes extends Routes> extends Guard<
-  TRoutes,
+export class AuthorizedGuard<TRoutesParams extends RoutesParams> extends Guard<
+  TRoutesParams,
   AuthorizedGuardConfigProps,
   AuthorizedGuardRoute
 > {
   protected async canAccessRoute(
-    params: CanAccessRouteParams<TRoutes, AuthorizedGuardConfigProps, AuthorizedGuardRoute>,
+    params: CanAccessRouteParams<TRoutesParams, AuthorizedGuardConfigProps, AuthorizedGuardRoute>,
   ): Promise<string | null> {
     const isAuthorized = await params.config.checkAuthorized(params.request);
 

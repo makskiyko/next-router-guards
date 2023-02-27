@@ -1,32 +1,32 @@
-import {Dirent, readdirSync} from 'fs';
+import {type Dirent, existsSync, readdirSync} from 'fs';
 import {autoInjectable, singleton} from 'tsyringe';
-
-import {Page} from './page.class';
 
 @autoInjectable()
 @singleton()
 export class FilesReader {
-  private readonly _pages: Page[] = [];
-
   public constructor() {}
 
-  public getPages(path: string): Page[] {
-    this._readDirectory(path);
-
-    return this._pages;
+  public isFileExists(path: string): boolean {
+    return existsSync(path);
   }
 
-  private _readDirectory(path: string): void {
+  public getFilesFromDirectory(path: string): string[] {
+    const files: string[] = [];
+
+    this._readDirectory(path, (file) => files.push(file));
+
+    return files;
+  }
+
+  private _readDirectory(path: string, onFindFile: (file: string) => void): void {
     readdirSync(path, {withFileTypes: true}).forEach((file: Dirent) => {
       if (file.isFile()) {
-        const fileName = file.name.replace(/\..+/, '');
-
-        this._pages.push(new Page(path + '/' + fileName));
+        onFindFile(path + '/' + file.name);
         return;
       }
 
       if (file.isDirectory()) {
-        this._readDirectory(path + '/' + file.name);
+        this._readDirectory(path + '/' + file.name, onFindFile);
       }
     });
   }

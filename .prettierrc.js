@@ -12,7 +12,4 @@ module.exports = {
   bracketSameLine: true,
   tabWidth: 2,
   semi: true,
-  importOrder: ['<THIRD_PARTY_MODULES>', '^./'],
-  importOrderSeparation: true,
-  importOrderParserPlugins: ["typescript", "decorators-legacy"],
 };

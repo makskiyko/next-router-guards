@@ -1,26 +1,40 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-export interface Guard<TRoutes extends Routes, TConfigProps extends Props, TGuardRouteProps extends Props> {
-  routes: TRoutes;
-  config: GuardsConfig<TRoutes, TConfigProps, TGuardRouteProps>;
+import {
+  CanAccessDefaultRouteParams,
+  CanAccessRouteParams,
+  CanAccessUrlResponse,
+  GuardParams,
+  GuardsConfig,
+  Props,
+  RoutesParams,
+} from './types';
+
+export interface Guard<TRoutesParams extends RoutesParams, TConfigProps extends Props, TGuardRouteProps extends Props> {
+  routes: {[key in keyof TRoutesParams]: string};
+  config: GuardsConfig<TRoutesParams, TConfigProps, TGuardRouteProps>;
   urlRegexp: RegExp;
 
   resolveRequest(request: NextRequest): CanAccessUrlResponse;
   accessRequest(request: NextRequest): Promise<NextResponse>;
   canAccessDefaultRoute?(
-    params: CanAccessDefaultRouteParams<TRoutes, TConfigProps, TGuardRouteProps>,
+    params: CanAccessDefaultRouteParams<TRoutesParams, TConfigProps, TGuardRouteProps>,
   ): CanAccessUrlResponse;
 }
 
-export abstract class Guard<TRoutes extends Routes, TConfigProps extends Props, TGuardRouteProps extends Props> {
-  public routes: TRoutes;
-  public config: GuardsConfig<TRoutes, TConfigProps, TGuardRouteProps>;
+export abstract class Guard<
+  TRoutesParams extends RoutesParams,
+  TConfigProps extends Props,
+  TGuardRouteProps extends Props,
+> {
+  public routes: {[key in keyof TRoutesParams]: string};
+  public config: GuardsConfig<TRoutesParams, TConfigProps, TGuardRouteProps>;
   public urlRegexp: RegExp;
 
-  public constructor({routes, config}: GuardParams<TRoutes, TConfigProps, TGuardRouteProps>) {
+  public constructor({config, routes}: GuardParams<TRoutesParams, TConfigProps, TGuardRouteProps>) {
     this.config = config;
     this.routes = routes;
-    this.urlRegexp = config.urlRegexp ?? new RegExp(/(?!api|static|public|images|_next|fonts|favicon.ico)/);
+    this.urlRegexp = config.urlRegexp ?? new RegExp(/^((?!api|static|public|images|fonts|favicon.ico).)+$/);
   }
 
   public resolveRequest(request: NextRequest): CanAccessUrlResponse {
@@ -54,14 +68,14 @@ export abstract class Guard<TRoutes extends Routes, TConfigProps extends Props, 
   }
 
   protected abstract canAccessRoute(
-    params: CanAccessRouteParams<TRoutes, TConfigProps, TGuardRouteProps>,
+    params: CanAccessRouteParams<TRoutesParams, TConfigProps, TGuardRouteProps>,
   ): CanAccessUrlResponse;
 
   private _accessUrl(request: NextRequest): CanAccessUrlResponse {
     const url = request.nextUrl.clone();
 
     for (const [routeName, route] of Object.entries(this.routes)) {
-      const isPathSame = this._checkPathEqual(url.pathname, route.route);
+      const isPathSame = this._checkPathEqual(url.pathname, route);
 
       if (isPathSame) {
         const routeConfig = this.config.routes[routeName];
@@ -77,8 +91,12 @@ export abstract class Guard<TRoutes extends Routes, TConfigProps extends Props, 
   }
 
   private _checkPathEqual(pathFromUrl: string, pathFromConfig: string): boolean {
-    const pathFromUrlItems = pathFromUrl.split('/');
-    const pathFromConfigItems = pathFromConfig.split('/');
+    const pathFromUrlItems = pathFromUrl
+      .replace(/\?.+$/, '')
+      .replace('.json', '')
+      .replace('/_next/data/development', '')
+      .split('/');
+    const pathFromConfigItems = pathFromConfig.replace(/\[.+]/g, '*').split('/');
 
     return (
       pathFromUrlItems.length === pathFromConfigItems.length &&

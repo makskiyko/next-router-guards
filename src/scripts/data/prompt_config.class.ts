@@ -1,127 +1,34 @@
-import {FilesWriter, Inquirer} from '../shared';
-import {cosmiconfig} from 'cosmiconfig';
 import {autoInjectable, singleton} from 'tsyringe';
 
-export class ConfigError {}
-
-type IntermediateConfigParams = {
-  useTs?: boolean;
-  routesPath?: string;
-  useSrc?: boolean;
-  useApp?: boolean;
-  initializeMiddleware?: boolean;
-  initializeRoutesConfig?: boolean;
-  routesConfigPath?: string;
-  guard?: GuardVariant;
-};
+import {ConfigError} from './index';
+import {Inquirer} from '../shared';
 
 @autoInjectable()
 @singleton()
-export class Config {
+export class PromptConfig {
   public config: CosmiconfigResult = null;
 
-  public constructor(private readonly _inquirer: Inquirer, private readonly _filesWriter: FilesWriter) {}
+  public constructor(private readonly _inquirer: Inquirer) {}
 
-  public async initializeConfig(): Promise<boolean> {
-    await this._loadConfig();
-    const error = this._validate();
+  public async promptConfig(): Promise<ConfigParams> {
+    const config: ConfigParams = {
+      useTs: false,
+      routesPath: '',
+    };
 
-    if (error) {
-      return this._createConfig();
-    }
+    config['useTs'] = await this._promptTs();
+    config['routesPath'] = await this._promptRoutesPath();
+    config['useSrc'] = await this._promptSrc();
+    config['useApp'] = await this._promptApp();
+    config['initializeMiddleware'] = await this._promptInitializeMiddleware();
+    config['initializeRoutesConfig'] = await this._promptInitializeRoutesConfig();
+    config['routesConfigPath'] = await this._promptRoutesConfigPath(config);
+    config['guard'] = await this._promptGuard(config);
 
-    return true;
+    return config;
   }
 
-  private async _loadConfig(): Promise<void> {
-    try {
-      this.config = await cosmiconfig('nrg').search();
-    } catch (error) {}
-  }
-
-  private async _createConfig(): Promise<boolean> {
-    try {
-      this._inquirer.print('No valid config found. Please, create them.');
-
-      let config: ConfigParams = {
-        useTs: true,
-        routesPath: '',
-      };
-
-      config['useTs'] = await this._promptedFields['useTs']();
-
-      // const responses = await Promise.all(
-      //   entries.map(async ([key, promptFunction], index) => {
-      //     console.log('5', index, {key, promptFunction});
-      //     const configKey = key as keyof ConfigParams;
-      //
-      //     const result: ConfigParams[typeof configKey] = await promptFunction(config);
-      //     console.log('result', {key, result});
-      //
-      //     const partial: Partial<ConfigParams> = {[configKey]: result};
-      //
-      //     config = {
-      //       ...config,
-      //       ...partial,
-      //     };
-      //
-      //     return config;
-      //   }),
-      // );
-      //
-      // console.log('6', {config, responses});
-      console.log({config});
-
-      if (false) return false;
-
-      this._filesWriter.writeJSON({
-        path: '.nrgrc.json',
-        content: config,
-      });
-
-      this.config = {
-        config,
-        filepath: './.nrgrc.json',
-        isEmpty: false,
-      };
-
-      this._inquirer.success('Config successfully created!');
-      return true;
-    } catch (error) {
-      this._inquirer.error('Please try to create config again');
-      this._inquirer.print(JSON.stringify(error));
-      return false;
-    }
-  }
-
-  private _validate(): ConfigError | null {
-    if (!this.config?.config || this.config.isEmpty) {
-      return new ConfigError();
-    }
-
-    const missedFields: (keyof ConfigParams)[] = Object.keys(this._promptedFields).filter(
-      (field) => !(field in this.config!.config),
-    ) as (keyof ConfigParams)[];
-
-    if (missedFields.length) {
-      return new ConfigError();
-    }
-
-    if (
-      typeof this.config.config.useTs !== 'boolean' ||
-      typeof this.config.config.initializeMiddleware !== 'boolean' ||
-      typeof this.config.config.initializeRoutesConfig !== 'boolean' ||
-      typeof this.config.config.routesPath !== 'string' ||
-      typeof this.config.config.routesConfigPath !== 'string' ||
-      (this.config.config.initializeRoutesConfig && !this.config.config.guard)
-    ) {
-      return new ConfigError();
-    }
-
-    return null;
-  }
-
-  public async _promptTs(): Promise<boolean> {
+  private async _promptTs(): Promise<boolean> {
     const {useTs} = await this._inquirer.prompt<{useTs: boolean}>([
       {
         name: 'useTs',
@@ -165,7 +72,7 @@ export class Config {
   private async _promptApp(): Promise<boolean> {
     const {useApp} = await this._inquirer.prompt<{useApp: boolean}>([
       {
-        name: 'useSrc',
+        name: 'useApp',
         message: 'Do you use app folder?',
         type: 'confirm',
       },
@@ -198,56 +105,43 @@ export class Config {
     return initializeRoutesConfig;
   }
 
-  // private async _promptRoutesConfigPath(intermediateConfig: IntermediateConfigParams): Promise<string | undefined> {
-  //   if (!intermediateConfig.initializeRoutesConfig) {
-  //     return undefined;
-  //   }
-  //
-  //   const {routesConfigPath} = await this._inquirer.prompt<{routesConfigPath: string}>([
-  //     {
-  //       name: 'routesConfigPath',
-  //       message: 'Please specify routes path (example: ./core/config/routes/routes.config.ts)',
-  //       type: 'input',
-  //     },
-  //   ]);
-  //
-  //   if (!routesConfigPath.match(/\.(js|ts)$/) || routesConfigPath.match(/\.d\.ts$/)) {
-  //     this._inquirer.error('File must have valid extension');
-  //     throw new ConfigError();
-  //   }
-  //
-  //   return routesConfigPath;
-  // }
-  //
-  // private async _promptGuard(intermediateConfig: IntermediateConfigParams): Promise<GuardVariant | undefined> {
-  //   if (!intermediateConfig.initializeRoutesConfig) {
-  //     return undefined;
-  //   }
-  //
-  //   const choices: GuardVariant[] = ['active', 'authorized', 'can_activate', 'roles'];
-  //
-  //   const {guard} = await this._inquirer.prompt<{guard: GuardVariant}>([
-  //     {
-  //       name: 'guard',
-  //       message: 'Please chose guard for initialization',
-  //       type: 'list',
-  //       choices,
-  //     },
-  //   ]);
-  //
-  //   return guard;
-  // }
+  private async _promptRoutesConfigPath(intermediateConfig: ConfigParams): Promise<string | undefined> {
+    if (!intermediateConfig.initializeRoutesConfig) {
+      return undefined;
+    }
 
-  private _promptedFields: {
-    [key in keyof ConfigParams]: (intermediateConfig?: IntermediateConfigParams) => Promise<ConfigParams[key]>;
-  } = {
-    useTs: this._promptTs,
-    routesPath: this._promptRoutesPath,
-    useSrc: this._promptSrc,
-    useApp: this._promptApp,
-    initializeMiddleware: this._promptInitializeMiddleware,
-    initializeRoutesConfig: this._promptInitializeRoutesConfig,
-    // routesConfigPath: this._promptRoutesConfigPath,
-    // guard: this._promptGuard,
-  };
+    const {routesConfigPath} = await this._inquirer.prompt<{routesConfigPath: string}>([
+      {
+        name: 'routesConfigPath',
+        message: 'Please specify routes path (example: ./core/config/routes/routes.config.ts)',
+        type: 'input',
+      },
+    ]);
+
+    if (!routesConfigPath.match(/\.(js|ts)$/) || routesConfigPath.match(/\.d\.ts$/)) {
+      this._inquirer.error('File must have valid extension');
+      throw new ConfigError();
+    }
+
+    return routesConfigPath;
+  }
+
+  private async _promptGuard(intermediateConfig: ConfigParams): Promise<GuardVariant | undefined> {
+    if (!intermediateConfig.initializeRoutesConfig) {
+      return undefined;
+    }
+
+    const choices: GuardVariant[] = ['active', 'authorized', 'can_activate', 'roles'];
+
+    const {guard} = await this._inquirer.prompt<{guard: GuardVariant}>([
+      {
+        name: 'guard',
+        message: 'Please chose guard for initialization',
+        type: 'list',
+        choices,
+      },
+    ]);
+
+    return guard;
+  }
 }

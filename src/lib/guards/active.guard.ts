@@ -1,4 +1,5 @@
 import {Guard} from '../guard.class';
+import {CanAccessRouteParams, RoutesParams, RouteUrl} from '../types';
 import type {NextRequest} from 'next/server';
 
 type ActiveGuardRoute = {
@@ -9,9 +10,13 @@ type ActiveGuardConfigProps = {
   defaultPage: RouteUrl;
 };
 
-export class ActiveGuard<TRoutes extends Routes> extends Guard<TRoutes, ActiveGuardConfigProps, ActiveGuardRoute> {
+export class ActiveGuard<TRoutesParams extends RoutesParams> extends Guard<
+  TRoutesParams,
+  ActiveGuardConfigProps,
+  ActiveGuardRoute
+> {
   protected async canAccessRoute(
-    params: CanAccessRouteParams<TRoutes, ActiveGuardConfigProps, ActiveGuardRoute>,
+    params: CanAccessRouteParams<TRoutesParams, ActiveGuardConfigProps, ActiveGuardRoute>,
   ): Promise<string | null> {
     const isActive: boolean = params.route.config.isActive
       ? typeof params.route.config.isActive === 'boolean'

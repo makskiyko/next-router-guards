@@ -16,6 +16,9 @@ This package has the following peer dependencies:
 npm i next-router-guards
 ```
 
+## Advantages
+- Faster than using router push inside useEffect.
+
 ## Usage
 Here is a very basic example of how to use Next Router Guards.
 

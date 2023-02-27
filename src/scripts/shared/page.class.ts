@@ -14,16 +14,4 @@ export class Page {
   public get params(): string[] | null {
     return this.path.match(/(?<=\[).+?(?=\])/g);
   }
-
-  public get textedParams(): string {
-    if (!this.params) {
-      return 'null';
-    }
-
-    return `{` + this.params.map((param) => param + ': any').join(', ') + '}';
-  }
-
-  public get generatedText() {
-    return `{${this.name}: new Route<${this.textedParams}>({path: '${this.path}'})},`;
-  }
 }

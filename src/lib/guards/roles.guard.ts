@@ -1,4 +1,11 @@
 import {Guard} from '../guard.class';
+import {
+  CanAccessDefaultRouteParams,
+  CanAccessRouteParams,
+  CanAccessUrlResponse,
+  RoutesParams,
+  RouteUrl,
+} from '../types';
 import type {NextRequest} from 'next/server';
 
 type RoleGuardRoute<TRoles extends string> = {
@@ -13,13 +20,13 @@ type RoleGuardConfigProps<TRoles extends string> = {
   roleStorageKey: string;
 };
 
-export class RolesGuard<TRoutes extends Routes, TRoles extends string> extends Guard<
-  Routes,
+export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends string> extends Guard<
+  TRoutesParams,
   RoleGuardConfigProps<TRoles>,
   RoleGuardRoute<TRoles>
 > {
   protected canAccessRoute(
-    params: CanAccessRouteParams<Routes, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
+    params: CanAccessRouteParams<TRoutesParams, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
   ): CanAccessUrlResponse {
     const role = this._getUserRole(params.request) ?? params.config.unauthorizedRole;
 
@@ -27,14 +34,17 @@ export class RolesGuard<TRoutes extends Routes, TRoles extends string> extends G
   }
 
   public canAccessDefaultRoute(
-    params: CanAccessDefaultRouteParams<Routes, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
+    params: CanAccessDefaultRouteParams<TRoutesParams, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
   ): CanAccessUrlResponse {
+    const role = this._getUserRole(params.request) ?? params.config.unauthorizedRole;
+    role;
+
     return params.config.defaultPages[params.config.unauthorizedRole];
   }
 
   private _checkRouteByRole(
     role: TRoles,
-    params: CanAccessRouteParams<Routes, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
+    params: CanAccessRouteParams<TRoutesParams, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
   ): CanAccessUrlResponse {
     const isRoleIncludes = Array.isArray(params.route.config.roles)
       ? params.route.config.roles.includes(role)

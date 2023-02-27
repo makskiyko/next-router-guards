@@ -1,4 +1,4 @@
-src/lib/types/
+dist/
 node_modules/
 package-lock.json
 

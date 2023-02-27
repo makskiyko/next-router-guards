@@ -1,9 +1,8 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import type {Answers, QuestionCollection} from 'inquirer';
-import {autoInjectable, singleton} from 'tsyringe';
+import {singleton} from 'tsyringe';
 
-@autoInjectable()
 @singleton()
 export class Inquirer {
   public constructor() {
@@ -14,6 +13,7 @@ export class Inquirer {
     console.log(chalk.green('┌────────────────────────┐'));
     console.log(chalk.green('│ Next router guards CLI │'));
     console.log(chalk.green('└────────────────────────┘'));
+    console.log('');
   }
 
   public print(message: string): void {
@@ -22,6 +22,10 @@ export class Inquirer {
 
   public error(message: string): void {
     console.log(chalk.red(message));
+  }
+
+  public success(message: string): void {
+    console.log(chalk.green(message));
   }
 
   public prompt<TAnswers extends Answers>(questions: QuestionCollection<TAnswers>): Promise<TAnswers> {
