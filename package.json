@@ -1,25 +1,25 @@
 {
   "name": "next-router-guards",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "next-router-guards",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "files": [
-    "dist",
-    "scripts"
-  ],
+  "main": "dist/cjs/lib/index.js",
+  "module": "dist/esm/lib/index.js",
   "bin": {
-    "next-router-guards": "scripts/index.js"
+    "nrg": "./dist/cjs/scripts/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "npm run build:lib && npm run build:scripts",
-    "build:lib": "rm -rf dist/ && npm run prettier:fix && npm run build:lib-esm && npm run build:lib-cjs",
-    "build:lib-esm": "tsc src/lib/*",
-    "build:lib-cjs": "tsc src/lib/* --module CommonJS --outDir dist/cjs",
-    "build:scripts": "rm -rf scripts/ && npm run prettier:fix && npm run build:scripts-esm && npm run build:scripts-cjs",
-    "build:scripts-esm": "tsc src/scripts/*",
-    "build:scripts-cjs": "tsc src/scripts/* --module CommonJS --outDir scripts",
-    "prettier:fix": "prettier --write src/"
+    "build": "rm -rf dist/ && npm run prettier:fix && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc --module CommonJS --outDir dist/cjs",
+    "clean": "rm -rf dist",
+    "prettier:fix": "prettier --write src/",
+    "test": "npm run build && npm pack --pack-destination ~"
   },
   "repository": {
     "type": "git",
@@ -37,17 +37,25 @@
   },
   "homepage": "https://github.com/makskiyko/next-router-guards#readme",
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.9",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "@types/inquirer": "^9.0.3",
+    "@types/node": "^18.11.19",
     "prettier": "^2.7.1",
     "typescript": "4.7.4"
   },
   "dependencies": {
-    "next": "^13.0.7",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "case": "^1.6.3",
+    "chalk": "^2.3.2",
+    "cosmiconfig": "^8.0.0",
+    "inquirer": "^5.1.0",
+    "next": "^13.1.6",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.7.0"
   }
 }

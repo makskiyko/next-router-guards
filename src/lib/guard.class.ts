@@ -1,53 +1,71 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-export interface Guard<
-  TConfigProps extends {[key: string]: any} | void,
-  TGuardRoute extends {[key: string]: any} | void = void,
-> {
-  config: GuardsConfig<TConfigProps, TGuardRoute>;
-  routes: {[key: string]: RouteUrl};
+export interface Guard<TRoutes extends Routes, TConfigProps extends Props, TGuardRouteProps extends Props> {
+  routes: TRoutes;
+  config: GuardsConfig<TRoutes, TConfigProps, TGuardRouteProps>;
+  urlRegexp: RegExp;
 
-  canAccessDefaultRoute?(params: CanAccessDefaultRouteParams<TConfigProps, TGuardRoute>): CanAccessUrlResponse;
+  resolveRequest(request: NextRequest): CanAccessUrlResponse;
+  accessRequest(request: NextRequest): Promise<NextResponse>;
+  canAccessDefaultRoute?(
+    params: CanAccessDefaultRouteParams<TRoutes, TConfigProps, TGuardRouteProps>,
+  ): CanAccessUrlResponse;
 }
 
-export abstract class Guard<
-  TConfigProps extends {[key: string]: any} | void,
-  TGuardRoute extends {[key: string]: any} | void = void,
-> {
-  public config: GuardsConfig<TConfigProps, TGuardRoute>;
-  public routes: {[key: string]: RouteUrl};
+export abstract class Guard<TRoutes extends Routes, TConfigProps extends Props, TGuardRouteProps extends Props> {
+  public routes: TRoutes;
+  public config: GuardsConfig<TRoutes, TConfigProps, TGuardRouteProps>;
+  public urlRegexp: RegExp;
 
-  public constructor(config: GuardsConfig<TConfigProps, TGuardRoute>) {
+  public constructor({routes, config}: GuardParams<TRoutes, TConfigProps, TGuardRouteProps>) {
     this.config = config;
-
-    this.routes = Object.fromEntries(Object.entries(config.routes).map(([key, route]) => [key, route.route]));
+    this.routes = routes;
+    this.urlRegexp = config.urlRegexp ?? new RegExp(/(?!api|static|public|images|_next|fonts|favicon.ico)/);
   }
 
-  public async accessRequest(request: NextRequest): Promise<NextResponse> {
+  public resolveRequest(request: NextRequest): CanAccessUrlResponse {
     const url = request.nextUrl.clone();
 
-    const externalUrlRegexp = new RegExp(/(?=api|static|public|images|_next|fonts|favicon.ico)/);
-    const isExternalRequest = externalUrlRegexp.test(url.pathname);
+    const isRequestForGuard = this.urlRegexp.test(url.pathname);
 
-    if (isExternalRequest) {
+    if (!isRequestForGuard) {
       return NextResponse.next();
     }
 
-    const redirectedUrl = await this._accessUrl(request);
-
-    return redirectedUrl ? NextResponse.redirect(new URL(redirectedUrl, request.url)) : NextResponse.next();
+    return this._accessUrl(request);
   }
 
-  protected abstract canAccessRoute(params: CanAccessRouteParams<TConfigProps, TGuardRoute>): CanAccessUrlResponse;
+  public async sendResponseByCanAccess(request: NextRequest, response: CanAccessUrlResponse): Promise<NextResponse> {
+    const resolvedResponse = await response;
+
+    if (!resolvedResponse) {
+      return NextResponse.next();
+    }
+
+    if (typeof resolvedResponse === 'string') {
+      return NextResponse.redirect(new URL(resolvedResponse, request.url));
+    }
+
+    return resolvedResponse;
+  }
+
+  public async accessRequest(request: NextRequest): Promise<NextResponse> {
+    return this.sendResponseByCanAccess(request, this.resolveRequest(request));
+  }
+
+  protected abstract canAccessRoute(
+    params: CanAccessRouteParams<TRoutes, TConfigProps, TGuardRouteProps>,
+  ): CanAccessUrlResponse;
 
   private _accessUrl(request: NextRequest): CanAccessUrlResponse {
     const url = request.nextUrl.clone();
 
-    for (const route of Object.values(this.config.routes)) {
+    for (const [routeName, route] of Object.entries(this.routes)) {
       const isPathSame = this._checkPathEqual(url.pathname, route.route);
 
       if (isPathSame) {
-        return this.canAccessRoute({request, route, config: this.config});
+        const routeConfig = this.config.routes[routeName];
+        return this.canAccessRoute({request, route: {route, config: routeConfig}, config: this.config});
       }
     }
 

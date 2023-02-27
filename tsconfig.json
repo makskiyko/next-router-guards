@@ -3,8 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "esModuleInterop": true,
-    "jsx": "react",
-    "lib": ["es5", "es2015", "es2016", "dom", "esnext"],
+    "lib": ["es6", "es2015", "es2016", "dom", "esnext"],
     "types": ["node", "react-dom"],
     "module": "es2015",
     "moduleResolution": "node",
@@ -13,7 +12,9 @@
     "outDir": "dist/esm",
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
+    "target": "es6",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts"]
 }

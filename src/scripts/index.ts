@@ -1,23 +1,8 @@
 #!/usr/bin/env node
+import 'reflect-metadata';
+import {container} from 'tsyringe';
 
-import {Dirent, readdirSync} from 'fs';
+import {App} from './app.class';
 
-const fileNames: string[] = [];
-
-const readDirectory = (path: string) => {
-  readdirSync(path, {withFileTypes: true}).forEach((file: Dirent) => {
-    if (file.isFile()) {
-      fileNames.push(file.name);
-      return;
-    }
-
-    if (file.isDirectory()) {
-      console.log(file.name);
-      // readDirectory(path + '/' + file.name);
-    }
-  });
-};
-
-readDirectory('./pages');
-
-console.log(fileNames);
+const app = container.resolve(App);
+app.start();
