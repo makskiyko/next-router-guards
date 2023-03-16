@@ -17,7 +17,7 @@ export const routesConfig = new ActiveGuard${config.useTs ? '<RoutesParams>' : '
     routes: {
       ${this._generateRoutes(pages, '{isActive: INSERT_IS_ACTIVE}')}
     },
-    defaultPage: INSERT_DEFAULT_PAGE',
+    defaultPage: INSERT_DEFAULT_PAGE,
   },
 });
 
@@ -34,17 +34,16 @@ export const routesConfig = new RolesGuard${config.useTs ? '<RoutesParams, INSER
     },
     defaultPages: INSERT_DEFAULT_PAGES,
     unauthorizedRole: INSERT_UNAUTORIZED_ROLE,
-    roleStorageKey: INSERT_ROLE_STORAGE_KEY,
+    getUserRole: INSERT_GET_USER_ROLE_FUNCTION,
   },
 });
 
 `,
     can_activate: (config, pages) => `import {CanActivateGuard} from 'next-router-guards';
-${config.useTs ? "  import {type NextRequest} from 'next/server';\n" : ''}
 
-  import {routes${config.useTs ? ', type RoutesParams' : ''}} from '${this._getPath(config)}';
+import {routes${config.useTs ? ', type RoutesParams' : ''}} from '${this._getPath(config)}';
 
-export const routesConfig = new CanActivateGuard${config.useTs ? '<RoutesParams, INSERT_TYPE>' : ''}({
+export const routesConfig = new CanActivateGuard${config.useTs ? '<RoutesParams>' : ''}({
   routes,
   config: {
     routes: {

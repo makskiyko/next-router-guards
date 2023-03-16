@@ -1,33 +1,29 @@
 ```ts
-export enum UserRole {
-  DISTRIBUTOR = 'distributor',
-  MAIN_DISTRIBUTOR = 'main_distributor',
-  MANAGER = 'manager',
-  ACCOUNT_MANAGER = 'account_manager',
-  GUEST = 'guest',
+import {RolesGuard} from 'next-router-guards';
+
+import {routes, type RoutesParams} from './routes.g';
+
+export enum Roles {
+  Guest = 'guest',
+  User = 'user'
 }
 
-const managers: UserRole[] = [UserRole.ACCOUNT_MANAGER, UserRole.MANAGER];
-const distributors: UserRole[] = [UserRole.DISTRIBUTOR, UserRole.MAIN_DISTRIBUTOR];
-
-export const routesConfig = new RolesGuard<UserRole>({
-  routes: {
-    login: {route: '/login', roles: UserRole.GUEST},
-    home: {route: '/home', roles: distributors},
-    catalog: {route: '/catalog', roles: distributors},
-    cart: {route: '/cart', roles: distributors},
-    orders: {route: '/orders', roles: [...distributors, ...managers]},
-    order: {route: '/orders/*', roles: [...distributors, ...managers]},
-    ordersManager: {route: '/orders-manager', roles: managers},
+export const routesConfig = new RolesGuard<RoutesParams, Roles>({
+  routes,
+  config: {
+    routes: {
+      index: {roles: [Roles.Guest, Roles.User]},
+      public: {roles: [Roles.Guest, Roles.User]},
+      private: {roles: [Roles.User]},
+      userId: {roles: [Roles.User]},
+    },
+    defaultPages: {
+      [Roles.Guest]: routes.public,
+      [Roles.User]: routes.private,
+    },
+    unauthorizedRole: Roles.Guest,
+    getUserRole: (request) => (request.cookies.get('role')?.value as Roles | undefined) ?? Roles.Guest,
   },
-  defaultPages: {
-    [UserRole.MAIN_DISTRIBUTOR]: '/home',
-    [UserRole.DISTRIBUTOR]: '/home',
-    [UserRole.MANAGER]: '/orders-manager',
-    [UserRole.ACCOUNT_MANAGER]: '/orders-manager',
-    [UserRole.GUEST]: '/login',
-  },
-  unauthorizedRole: UserRole.GUEST,
-  roleStorageKey: 'user-role',
 });
+
 ```

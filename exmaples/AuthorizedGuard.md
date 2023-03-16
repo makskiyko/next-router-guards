@@ -1,14 +1,20 @@
 ```ts
 import {AuthorizedGuard} from 'next-router-guards';
 
-export const routesConfig = new AuthorizedGuard({
-  defaultPublicRoute: '/login',
-  defaultPrivateRoute: '/',
-  checkAuthorized: (request) => request.cookies.has('token'),
-  routes: {
-    login: {route: '/login', isPublic: true},
-    home: {route: '/', isPublic: false},
-    cart: {route: '/cart', isPublic: false},
+import {routes, type RoutesParams} from './routes.g';
+
+export const routesConfig = new AuthorizedGuard<RoutesParams>({
+  routes,
+  config: {
+    routes: {
+      index: {isPublic: true},
+      public: {isPublic: true},
+      private: {isPublic: false},
+      userId: {isPublic: false},
+    },
+    defaultPublicRoute: routes.public,
+    defaultPrivateRoute: routes.private,
+    checkAuthorized: (request) => request.cookies.has('token'),
   },
 });
 ```

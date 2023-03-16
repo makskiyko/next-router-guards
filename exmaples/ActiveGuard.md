@@ -1,11 +1,19 @@
 ```ts
 import {ActiveGuard} from 'next-router-guards';
 
-export const routesConfig = new ActiveGuard({
-  routes: {
-    home: {route: '/'},
-    test: {route: '/test', isActive: (request) => request.cookies.has('is_testing_user')},
+import {routes, type RoutesParams} from './routes.g';
+
+export const routesConfig = new ActiveGuard<RoutesParams>({
+  routes,
+  config: {
+    routes: {
+      index: {isActive: true},
+      public: {isActive: true},
+      private: {isActive: false},
+      userId: {isActive: (request) => request.cookies.has('is_testing_user')},
+    },
+    defaultPage: routes.index,
   },
-  defaultPage: '/',
 });
+
 ```

@@ -4,7 +4,7 @@ import {GuardTemplate} from './guard_template.class';
 
 @singleton()
 export class PagesWorker {
-  private readonly _nextPages = ['_app', '_document', '_error'];
+  private readonly _nextPages = ['_app', '_document', '_error', 'api'];
   private _pages: Page[] = [];
 
   public constructor(
@@ -32,7 +32,7 @@ export class PagesWorker {
     const files = this._filesReader
       .getFilesFromDirectory(pagesDirectory)
       .map((file) => file.replace(pagesDirectory, '').replace(/\..+$/, ''))
-      .filter((file) => !this._nextPages.includes(file.replace(/^\//, '')));
+      .filter((file) => !this._nextPages.includes(file.replace(/^\//, '').split('/')[0]));
 
     this._pages = files.map((file) => new Page(file));
   }
@@ -73,7 +73,7 @@ export class PagesWorker {
       this._getPages(config);
 
       const generatedFileText = this._getGeneratedFileText(config);
-      this._filesWriter.writeFile({content: generatedFileText, path: config.routesPath, options: 'utf-8'});
+      await this._filesWriter.writeFile({content: generatedFileText, path: config.routesPath, options: 'utf-8'});
 
       this._inquirer.success('Routes successfully created!');
     } catch (error) {
@@ -91,7 +91,7 @@ export class PagesWorker {
       if (isMiddleWareExists) return;
 
       if (config.useTs) {
-        this._filesWriter.writeFile({
+        await this._filesWriter.writeFile({
           content: [
             "import type {NextRequest} from 'next/server';",
             '',
@@ -106,7 +106,7 @@ export class PagesWorker {
           options: 'utf-8',
         });
       } else {
-        this._filesWriter.writeFile({
+        await this._filesWriter.writeFile({
           content: [
             `import {routes} from '${config.routesConfigPath?.replace(/\.(ts|js)$/, '')}';`,
             '',
@@ -145,7 +145,7 @@ export class PagesWorker {
         if (!overwrite) return;
       }
 
-      this._filesWriter.writeFile({
+      await this._filesWriter.writeFile({
         content: this._guardTemplate.generateTemplate(config, this._pages),
         path: config.routesConfigPath,
         options: 'utf-8',

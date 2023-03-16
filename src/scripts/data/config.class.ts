@@ -49,7 +49,7 @@ export class Config {
 
       const config = await this._promptConfig.promptConfig();
 
-      this._filesWriter.writeJSON({
+      await this._filesWriter.writeJSON({
         path: '.nrgrc.json',
         content: config,
       });

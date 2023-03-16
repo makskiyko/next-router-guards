@@ -8,19 +8,19 @@ import {
 } from '../types';
 import type {NextRequest} from 'next/server';
 
-type RoleGuardRoute<TRoles extends string> = {
+type RoleGuardRoute<TRoles extends string | number> = {
   roles: TRoles | TRoles[];
 };
 
-type RoleGuardConfigProps<TRoles extends string> = {
+type RoleGuardConfigProps<TRoles extends string | number> = {
   defaultPages: {
     [key in TRoles]: RouteUrl;
   };
   unauthorizedRole: TRoles;
-  roleStorageKey: string;
+  getUserRole: (request: NextRequest) => TRoles;
 };
 
-export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends string> extends Guard<
+export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends string | number> extends Guard<
   TRoutesParams,
   RoleGuardConfigProps<TRoles>,
   RoleGuardRoute<TRoles>
@@ -28,7 +28,7 @@ export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends strin
   protected canAccessRoute(
     params: CanAccessRouteParams<TRoutesParams, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
   ): CanAccessUrlResponse {
-    const role = this._getUserRole(params.request) ?? params.config.unauthorizedRole;
+    const role = this.config.getUserRole(params.request);
 
     return this._checkRouteByRole(role, params);
   }
@@ -36,10 +36,9 @@ export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends strin
   public canAccessDefaultRoute(
     params: CanAccessDefaultRouteParams<TRoutesParams, RoleGuardConfigProps<TRoles>, RoleGuardRoute<TRoles>>,
   ): CanAccessUrlResponse {
-    const role = this._getUserRole(params.request) ?? params.config.unauthorizedRole;
-    role;
+    const role = this.config.getUserRole(params.request);
 
-    return params.config.defaultPages[params.config.unauthorizedRole];
+    return params.config.defaultPages[role];
   }
 
   private _checkRouteByRole(
@@ -51,9 +50,5 @@ export class RolesGuard<TRoutesParams extends RoutesParams, TRoles extends strin
       : params.route.config.roles === role;
 
     return isRoleIncludes ? null : params.config.defaultPages[role];
-  }
-
-  private _getUserRole(request: NextRequest): TRoles | undefined {
-    return request.cookies.get(this.config.roleStorageKey)?.value as TRoles | undefined;
   }
 }
