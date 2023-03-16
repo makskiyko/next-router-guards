@@ -11,10 +11,10 @@ Why use the next-router-guards is better than alternatives?
 3) All page access settings will be in one place.
 
 Example of using next-router-guards.
-[![next-router-guards](./documentation/next-router-guards.mp4)](./documentation/next-router-guards.mp4)
+![next-router-guards](./documentation/next-router-guards.gif)
 
 Example of using useEffect.
-[![useEffect](./documentation/useEffect.mp4)](./documentation/useEffect.mp4)
+![useEffect](./documentation/useEffect.gif)
 
 ## Requirements
 This package has the following peer dependencies:
