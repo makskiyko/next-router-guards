@@ -11,10 +11,10 @@ Why use the next-router-guards is better than alternatives?
 3) All page access settings will be in one place.
 
 Example of using next-router-guards.
-![next-router-guards.mp4](documentation/next-router-guards.mp4)
+[![next-router-guards](./documentation/next-router-guards.mp4)](./documentation/next-router-guards.mp4)
 
 Example of using useEffect.
-![useEffect.mp4](documentation/useEffect.mp4)
+[![useEffect](./documentation/useEffect.mp4)](./documentation/useEffect.mp4)
 
 ## Requirements
 This package has the following peer dependencies:
@@ -30,7 +30,8 @@ npm i next-router-guards
 ## Usage
 Here is a very basic example of how to use Next Router Guards.
 
-Example of pages
+Example of pages:
+
 ![pages.png](documentation/pages.png)
 
 ### Manually
@@ -148,7 +149,7 @@ export class ActiveGuard<TRoutesParams extends RoutesParams> extends Guard<
 
 #### useRouterGuards
 You can use `useRouterGuards` hook for push or replace pages. What a difference between push pages with `useRouter` (from next) and `useRouterGuards` (from `next-router-guards`)?
-1) When you pushing (or replacing) pages with `useRouterGuards` you can choose the pages from list of variants (if you using typescript your IDE will pass you variants of pages based on `TRoutesParams`)
+1) When you pushing (or replacing) pages with `useRouterGuards` you can choose the pages from list of variants (if you're using typescript your IDE will pass you variants of pages based on `TRoutesParams`)
 ![useRouterGuardsIDE.png](documentation/useRouterGuardsIDE.png)
 2) You must fill params of your pushing page with the correct type.
 ![useRouterGuardsUncorrectedParam.png](documentation/useRouterGuardsUncorrectedParam.png)
