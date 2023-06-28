@@ -191,5 +191,8 @@ export async function middleware(request: NextRequest) {
 }
 ```
 
+#### Recommendations
+- name routes with `/*` (e.g. not found page) with `_` in start of route name. Because of all routes starts comparing with current page by alphabet.
+
 ## License
 `next-router-guards` is released under the [MIT](License) license.
