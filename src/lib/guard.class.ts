@@ -34,7 +34,7 @@ export abstract class Guard<
   public constructor({config, routes}: GuardParams<TRoutesParams, TConfigProps, TGuardRouteProps>) {
     this.config = config;
     this.routes = routes;
-    this.urlRegexp = config.urlRegexp ?? new RegExp(/^((?!api|static|public|images|fonts|favicon.ico).)+$/);
+    this.urlRegexp = config.urlRegexp ?? new RegExp(/^((?!api|static|public|images?|fonts|favicon.ico).)+$/);
   }
 
   public resolveRequest(request: NextRequest): CanAccessUrlResponse {
