@@ -26,7 +26,7 @@ export const routesConfig = new ActiveGuard${config.useTs ? '<RoutesParams>' : '
 
 import {routes${config.useTs ? ', type RoutesParams' : ''}} from '${this._getPath(config)}';
 
-export const routesConfig = new RolesGuard${config.useTs ? '<RoutesParams, INSERT_TYPE>' : ''}({
+export const routesConfig = new RolesGuard${config.useTs ? '<RoutesParams, INSERT_ROLES_TYPE>' : ''}({
   routes,
   config: {
     routes: {
