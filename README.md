@@ -191,8 +191,20 @@ export async function middleware(request: NextRequest) {
 }
 ```
 
-#### Recommendations
+#### Troubleshooting
 - name routes with `/*` (e.g. not found page) with `_` in start of route name. Because of all routes starts comparing with current page by alphabet.
+- when you have error: "Can't resolve 'fs'", just add config.resolve.fallback = {fs: false} in your your next.config.js for webpack configuration.
+```js
+module.exports = {
+  webpack(config) {
+    config.resolve.fallback = {
+      fs: false,
+    };
+
+    return config;
+  },
+}
+```
 
 ## License
 `next-router-guards` is released under the [MIT](License) license.

@@ -14,7 +14,7 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "rm -rf scripts/dist && npm run prettier:fix && npm run build:esm && npm run build:cjs",
+    "build": "npm run prettier:fix && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc",
     "build:cjs": "tsc --module CommonJS --outDir dist/cjs",
     "clean": "rm -rf scripts/dist",
