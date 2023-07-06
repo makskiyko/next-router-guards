@@ -96,7 +96,7 @@ export abstract class Guard<
       .replace('.json', '')
       .replace('/_next/data/development', '')
       .split('/');
-    const pathFromConfigItems = pathFromConfig.replace(/\[.+]/g, '*').split('/');
+    const pathFromConfigItems = pathFromConfig.replace(/\[.+?]/g, '*').split('/');
 
     return (
       pathFromUrlItems.length === pathFromConfigItems.length &&
