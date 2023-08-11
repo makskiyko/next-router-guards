@@ -85,7 +85,7 @@ export class PromptConfig {
     const {initializeMiddleware} = await this._inquirer.prompt<{initializeMiddleware: boolean}>([
       {
         name: 'initializeMiddleware',
-        message: 'Do you want to initialize routes config?',
+        message: "Do you want to create middleware.ts if it's doesn't exists?",
         type: 'confirm',
       },
     ]);
@@ -97,7 +97,7 @@ export class PromptConfig {
     const {initializeRoutesConfig} = await this._inquirer.prompt<{initializeRoutesConfig: boolean}>([
       {
         name: 'initializeRoutesConfig',
-        message: "Do you want to create middleware.ts if it's doesn't exists?",
+        message: 'Do you want to initialize routes config?',
         type: 'confirm',
       },
     ]);
